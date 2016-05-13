@@ -11,6 +11,7 @@ use Timber\Image;
 use Timber\Helper;
 use Timber\URLHelper;
 use Timber\PostGetter;
+use Timber\PostType;
 
 /**
  * This is the object you use to access or extend WordPress posts. Think of it as Timber's (more accessible) version of WP_Post. This is used throughout Timber to represent posts retrieved from WordPress making them available to Twig templates. See the PHP and Twig examples for an example of what it's like to work with this object in your code.
@@ -605,7 +606,9 @@ class Post extends Core implements CoreInterface {
 	/**
 	 *
 	 * Here is my summary
+	 * @deprecated since 1.0.3
 	 * @example
+	 * 
 	 * ```twig
 	 * This post is from <span>{{ post.get_post_type.labels.plural }}</span>
 	 * ```
@@ -616,7 +619,11 @@ class Post extends Core implements CoreInterface {
 	 * @return mixed
 	 */
 	public function get_post_type() {
-		return get_post_type_object($this->post_type);
+		return $this->type();
+	}
+
+	public function post_type() {
+		return $this->type();
 	}
 
 	/**
@@ -970,6 +977,13 @@ class Post extends Core implements CoreInterface {
 	 	return apply_filters('get_the_time', $the_time, $tf);
 	}
 
+	public function type() {
+		if ( !$this->post_type instanceof PostType ) {
+			$this->post_type = new PostType($this->post_type);
+		}
+		return $this->post_type;
+	}
+
 	/**
 	 * Returns the edit URL of a post if the user has access to it
 	 * @return bool|string the edit URL of a post in the WordPress admin 
@@ -1222,6 +1236,7 @@ class Post extends Core implements CoreInterface {
 	 * @return string
 	 */
 	public function title() {
+		error_log('calling title()');
 		return apply_filters('the_title', $this->post_title, $this->ID);
 	}
 
