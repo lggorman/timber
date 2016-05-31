@@ -9,7 +9,6 @@ class TestTimberPagination extends Timber_UnitTestCase {
 		$posts = $this->factory->post->create_many( 55 );
 		$this->go_to( home_url( '?s=post' ) );
 		$pagination = Timber::get_pagination();
-		var_dump($pagination);
 		$this->assertEquals( home_url().'/?s=post&#038;paged=5', $pagination['pages'][4]['link'] );
 	}
 
