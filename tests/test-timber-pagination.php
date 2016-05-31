@@ -9,6 +9,7 @@ class TestTimberPagination extends Timber_UnitTestCase {
 		$posts = $this->factory->post->create_many( 55 );
 		$this->go_to( home_url( '?s=post' ) );
 		$pagination = Timber::get_pagination();
+		var_dump($pagination);
 		$this->assertEquals( home_url().'/?s=post&#038;paged=5', $pagination['pages'][4]['link'] );
 	}
 
@@ -35,7 +36,6 @@ class TestTimberPagination extends Timber_UnitTestCase {
 		$this->go_to( home_url( '/' ) );
 		Timber::get_posts('post_type=portfolio');
 		$pagination = Timber::get_pagination();
-
 		global $timber;
 		$timber->active_query = false;
 		unset($timber->active_query);
@@ -104,6 +104,28 @@ class TestTimberPagination extends Timber_UnitTestCase {
 		$post_objects = Timber::get_posts( false );
 		$pagination = Timber::get_pagination();
 		//need to complete test
+	}
+
+	function testPaginationNextUsesBaseAndFormatArgs( $struc = '/%postname%/' ) {
+		global $wp_rewrite;
+		$wp_rewrite->permalink_structure = $struc;
+		update_option( 'permalink_structure', $struc );
+		$posts = $this->factory->post->create_many( 55 );
+		$this->go_to( home_url( '/' ) );
+		$pagination = Timber::get_pagination( array( 'base' => '/apricot/%_%', 'format' => 'page=%#%' ) );
+		$this->assertEquals( '/apricot/page=2', $pagination['next']['link'] );
+	}
+
+	function testPaginationPrevUsesBaseAndFormatArgs( $struc = '/%postname%/' ) {
+		global $wp_rewrite;
+		$wp_rewrite->permalink_structure = $struc;
+		update_option( 'permalink_structure', $struc );
+		$posts = $this->factory->post->create_many( 55 );
+		$this->go_to( home_url( '/apricot/page=3' ) );
+		query_posts('paged=3');
+		$GLOBALS['paged'] = 3;
+		$pagination = Timber::get_pagination( array( 'base' => '/apricot/%_%', 'format' => 'page=%#%' ) );
+		$this->assertEquals( '/apricot/page=2', $pagination['prev']['link'] );
 	}
 
 
